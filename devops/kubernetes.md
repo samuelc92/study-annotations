@@ -6,7 +6,9 @@
   - [Container Images](#container-images)
     - [System Container](#system-container)
     - [Application Container](#application-container)
-  - [Dockerfile](#dockerfile)
+  - [Docker](#docker)
+    - [Dockerfile](#dockerfile)
+    - [Multistage Image Builds](#multistage-image-builds)
 
 ## Container Images
 
@@ -32,7 +34,11 @@
 
 - Application container differ from system container in that they commonly run a single program.
 
-## Dockerfile
+## Docker
+
+- Docker is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called containers.
+
+### Dockerfile
 
 - Dockerfile can be used to automate the creation of a Docker container image. 
 
@@ -65,3 +71,40 @@ the runs the correct command in the container to install the necessary dependenc
 - In general, we want to order the layers from least likely to change to most likely to change in order to optimize the image size for pushing and pulling. This is why we copy
 the 'package*.json' files and install dependencies before copying the rest of the program files. A developer is going to update and change the program files much more often than
 the dependencies.
+
+### Multistage Image Builds
+
+- With multistage builds, rather than producing a single image a Dockerfile can actually produce multiple images, each image is considered a stage.
+
+```dockerfile
+# STAGE 1: Build
+FROM golang:1.17-alpine AS build
+
+# Install Node and NPM
+RUN apk update && apk upgrade && apk add --no-cache git nodejs
+
+# Get dependencies for GO part of build
+RUN go get -u github.com/jte...
+RUN go get github.com/...
+WORKDIR /go/src/github.com/...
+
+# Copy all sources in
+COPY . .
+
+# This is a set of variables that the build script expects
+ENV VERBOSE=0
+ENV VERSION=1.0
+
+# Do the build script is part of incoming sources.
+RUN build/build.sh
+
+# STAGE 2: Deployment 
+FROM alpine
+
+USER nobody:nobody
+COPY --from=build /go/bin/kuard /kuard
+
+CMD ["/kuard"]
+```
+
+ - This Dockerfile produces two images, the first one contains the GO compiler, Reactjs toolchain, and source code for the program. The second contains the compiled binary.
