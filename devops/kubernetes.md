@@ -7,8 +7,11 @@
     - [System Container](#system-container)
     - [Application Container](#application-container)
   - [Docker](#docker)
+    - [Commands](#commands)
     - [Dockerfile](#dockerfile)
     - [Multistage Image Builds](#multistage-image-builds)
+  - [Kubernetes](#kubernetes)
+    - [Commands](#commands-1)
 
 ## Container Images
 
@@ -37,6 +40,12 @@
 ## Docker
 
 - Docker is a set of platform as a service (PaaS) products that use OS-level virtualization to deliver software in packages called containers.
+- Each container gets its own IP address, so listening on localhost inside the container doesn't cause you to listen on your machine. Without the port forwarding (-p 8080:8080)
+  connections will be inaccessible to your machine. 
+
+### Commands
+
+- ```docker system prune -a``` This will remove all stopped containers, all untagged imags, an all unused image layers cached as part of the build process.
 
 ### Dockerfile
 
@@ -108,3 +117,24 @@ CMD ["/kuard"]
 ```
 
  - This Dockerfile produces two images, the first one contains the GO compiler, Reactjs toolchain, and source code for the program. The second contains the compiled binary.
+
+## Kubernetes
+
+ - Pods, or groups of containers, can group together container images developed by different teams into a single deployable unit.
+ - Kubernetes services provide load balancing, naming, and discovery to isolate one microservice from another.
+ - Namespaces provide isolation and access control, so that each microservice can control the degree to which other services interact with it.
+ - Ingress objects provide an easy-to-use frontend that can combine multiple microservices into a single externalized API surface area.
+ - Resources requested by a Pod are guaranteed to be present on the node, while a Pod's limit is the maximum amount of a given resource that a Pod can consume.
+  A Pod's limit can be higher than its request, in which case the extra resource are supplied on a best-effort basis. They are not guaranteed to be present on the node
+
+ ### Commands
+
+ - ```kubectl get component statuses``` Get a simple diagnostic for the cluster. It returns the components that make up(compose) the Kubernetes cluster.
+   - The ```controller -manager``` is responsible for running various controllers that regulate behavior in the cluster, for example, ensuring that all of the replicas
+ of a service are available and healthy.
+   - The ```scheduler```is responsible for placing different Pods into different nodes in the cluster.
+   - Finally, the ```etcd```server is the storage for the cluster where all of the API objects are stored  
+
+- ```kubectl get nodes```List out all of the nodes in your cluster.
+  - In Kubernets, nodes are separated into ```control-plane```nodes that contain containers like the API server, scheduler, etc., which manage the cluster, 
+  and ```worker``` nodes where your containers will run.
