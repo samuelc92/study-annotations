@@ -12,6 +12,12 @@
     - [Multistage Image Builds](#multistage-image-builds)
   - [Kubernetes](#kubernetes)
     - [Commands](#commands-1)
+    - [Proxy](#proxy)
+    - [DNS](#dns)
+    - [Namespaces](#namespaces)
+    - [API Objects](#api-objects)
+    - [Cordon and drain](#cordon-and-drain)
+    - [Pods in Kubernetes](#pods-in-kubernetes)
 
 ## Container Images
 
@@ -120,7 +126,6 @@ CMD ["/kuard"]
 
 ## Kubernetes
 
- - Pods, or groups of containers, can group together container images developed by different teams into a single deployable unit.
  - Kubernetes services provide load balancing, naming, and discovery to isolate one microservice from another.
  - Namespaces provide isolation and access control, so that each microservice can control the degree to which other services interact with it.
  - Ingress objects provide an easy-to-use frontend that can combine multiple microservices into a single externalized API surface area.
@@ -135,6 +140,47 @@ CMD ["/kuard"]
    - The ```scheduler```is responsible for placing different Pods into different nodes in the cluster.
    - Finally, the ```etcd```server is the storage for the cluster where all of the API objects are stored  
 
-- ```kubectl get nodes```List out all of the nodes in your cluster.
+- ```kubectl get nodes``` List out all of the nodes in your cluster.
   - In Kubernets, nodes are separated into ```control-plane```nodes that contain containers like the API server, scheduler, etc., which manage the cluster, 
   and ```worker``` nodes where your containers will run.
+
+- ```kubectl port-forward kuard 8080:80``` Creates a secure tunnel from your local machine, through the Kubernetes master, to the instance of the Pod running on one
+  of the worker nodes;
+  - opens up a connection that forwards traffic from the local machine on port 8080 to the remote container on port 80;
+
+### Proxy
+
+- It is responsible for routing network traffic to load-balanced services in the Kubernetes cluster;
+- The proxy must be present on every node in the cluster;
+  
+### DNS
+
+- It provides naming and discovery for the services that are defined in the cluster.
+  - ```kubectl get deployments --namespace=kube-system core-dns```
+  - ```kubectl get services --namespace=kube-system core-dns```
+
+### Namespaces
+
+- Kubernetes uses namespaces to organize objects in the cluster;
+- Namespaces is similar to a folder that holds a set of objects;
+
+### API Objects
+
+- Everything contained in Kubernetes is represented by a RESTful resource. Each Kubernetes objects exist at a unique HTTP path, for example: https://your-k8s.com/api/v1/namespace/default/pods/my-pod, leads to the representation of a Pod in the default namespace named "my-pod";
+- Objects in the Kubernetes API are represented as JSON or YAML files;
+- You can use ```kubectl``` to create an object in Kubernetes by running:
+  - ```kubectl apply -f obj.yaml```
+
+### Cordon and drain
+
+- When you cordon a node you prevent future Pods from being scheduled onto that machine;
+- When you drain a node, you remove any Pods that are currently running on that machine;
+- A good example use case for these command would be removing a physical machine for repairs or upgrades;
+
+### Pods in Kubernetes
+
+- A Pod is a collectin of application containers and volumes running in the same execution environment;
+- Pods (single atomic unit), or groups of containers, can group together container images developed by different teams into a single deployable unit;
+- All of the containers in a Pod always land on the same machine;
+- Applications running iin the same Pod share the same IP address and port space (network namespace), have the same hostname and can communicate using native interprocess communication channels ofr POSIX message queues;
+- If the containers work correctly on differente machine multiple Pods is probably the correction solution. If the containers don't work correctly on differente machines a Pod is the correct grouping for the containers;
