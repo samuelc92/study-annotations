@@ -18,6 +18,11 @@
     - [API Objects](#api-objects)
     - [Cordon and drain](#cordon-and-drain)
     - [Pods in Kubernetes](#pods-in-kubernetes)
+  - [Anti-pattern](#anti-pattern)
+    - [Lack of Health Checks](#lack-of-health-checks)
+    - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
+    - [Not Using Circuit Breakers](#not-using-circuit-breakers)
+    - [Not Collecting Enough Metrics](#not-collecting-enough-metrics)
 
 ## Container Images
 
@@ -184,3 +189,22 @@ CMD ["/kuard"]
 - All of the containers in a Pod always land on the same machine;
 - Applications running iin the same Pod share the same IP address and port space (network namespace), have the same hostname and can communicate using native interprocess communication channels ofr POSIX message queues;
 - If the containers work correctly on differente machine multiple Pods is probably the correction solution. If the containers don't work correctly on differente machines a Pod is the correct grouping for the containers;
+
+## Anti-pattern
+
+### Lack of Health Checks
+A health check allows the status of a service been validated. It helps assess key information like service availability, system metrics, or available database connections. Kubernetes supports Container probes (```livenessProbe```, ```readinessProbe```, ```startupProbe```) that allow monitoring services and take actions when the probe is successful.
+
+### Not Using Blue/Green, or Canary Deployments Models
+Kubernetes allows you to define ```Recreate``` and ```RollingUpdate``` deployment strategies. ```Recreate``` will kill all the Pods before creating new ones, while ```RollingUpdate``` will update Pods in a rolling fashion and permit configuring ```maxUnavailable``` and ```maxSurge``` to control the process.
+While these deployment strategies can serve many use cases, they also have limitations. For example, ```Recreate``` causes downtime while ```RollingUpdate``` can make rollback harder. None of these methods allows rapid experimentation and feedback on new versions of your services.
+
+A blue/green deployment is a deployment model that creates copies of your service (the old version being blue and the new version being green) with both services running in parallel.
+
+Canary deployment is a technique that only routes the traffic to the new service for a subset of users.
+
+### Not Using Circuit Breakers
+Services running on a Kubernetes cluster talk to one another by making remote calls. The goal of the circuit breaker is to prevent failure after identifying a fault, it prevents further calls to the service that is failuring. This allows systems to deal with the failure and route requests to healthy instances of the same service.
+
+### Not Collecting Enough Metrics
+Observability is key to understanding system behavior, and effective observability depends on the proper collection of metrics. A lack of key metrics will severely limit your ability to understand how your services are performing and if they're performing at the desired level.
