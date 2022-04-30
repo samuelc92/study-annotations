@@ -20,6 +20,10 @@
     - [Pods in Kubernetes](#pods-in-kubernetes)
       - [Liveness Probe](#liveness-probe)
       - [Readiness Probe](#readiness-probe)
+      - [Types of Health Checks](#types-of-health-checks)
+      - [Resources Requests: Minimum Required Resources](#resources-requests-minimum-required-resources)
+      - [Requested Limit Details](#requested-limit-details)
+      - [Capping Resources Usage with Limits](#capping-resources-usage-with-limits)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -230,6 +234,26 @@ CMD ["/kuard"]
 - Containers that fail readiness checks are removed from service load balancers.
 - Readiness probe are configured similarly to liveness probe.
 - Combining the readiness and liveness probes helps ensure only healthy containers are running within the cluster.
+
+#### Types of Health Checks
+
+- Kubernetes also support `tcpSocket` health checks that open a TCP socket, if the connection succeeds, the probe succedes.
+- Kubernetes allows `exec` probes. These execute a script or program in the context of the container, if this script returns a zero exit code, the probe succeds, otherwise it fails.
+
+#### Resources Requests: Minimum Required Resources
+
+- When a Pod requests the resources required to run its containers, Kubernetes guarantees that these resources are available to the Pod.
+- Resources are requested per container, not per Pod. The total resources requested by the Pod is the sum of all resources requested by all containers in the Pod because the different containers often have very different CPU requirements.
+
+#### Requested Limit Details
+
+- Requests are used when scheduling Pods to nodes. The Kubernetes scheduler will ensure that the sum of all requests of all Pods on a node does not exceed the capacity of the node. Therefore, a Pod is guaranteed to have at least the requested resources when running on the node.
+- Memory requests are handled similarly, to CPU, byt there is an important difference. If a container is over its memory request, the OS can't just remove memory from the process, because it's been allocated. Consequently, when the system runs out of memory, the `kubelet` terminates containers whose memory usage is greater than their requested memory. These containers are automatically restarted, but with less available memory on the machine for the container to consume.
+
+#### Capping Resources Usage with Limits
+
+- In addition to setting resources required by a Pod, which establishes the minimum resources available to it, you can also set a maximum on it's resources usage via resources `limits`.
+- When a limit is established on a container, the kernel is configured to ensure that consumption cannot exceed these limits. A container with a CPU limit of 0.5 cores will only ever get 0.5 cores, even if the CPU is otherwise idle. A container with a memory limit of 256MB will not be allowed additional memory, for example `malloc` will fail, if its memory usage exceeds 256MB.
 
 ## Anti-pattern
 
