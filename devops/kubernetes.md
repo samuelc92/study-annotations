@@ -24,6 +24,9 @@
       - [Resources Requests: Minimum Required Resources](#resources-requests-minimum-required-resources)
       - [Requested Limit Details](#requested-limit-details)
       - [Capping Resources Usage with Limits](#capping-resources-usage-with-limits)
+    - [Labels and Annotations](#labels-and-annotations)
+    - [Service Discovery](#service-discovery)
+      - [Domain Name System (DNS)](#domain-name-system-dns)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -254,6 +257,23 @@ CMD ["/kuard"]
 
 - In addition to setting resources required by a Pod, which establishes the minimum resources available to it, you can also set a maximum on it's resources usage via resources `limits`.
 - When a limit is established on a container, the kernel is configured to ensure that consumption cannot exceed these limits. A container with a CPU limit of 0.5 cores will only ever get 0.5 cores, even if the CPU is otherwise idle. A container with a memory limit of 256MB will not be allowed additional memory, for example `malloc` will fail, if its memory usage exceeds 256MB.
+
+### Labels and Annotations
+
+- Labels are Key/Value pairs that can be attached to Kubernetes Objects such as Pods and ReplicaSets. They can be arbitrary, and are useful for attaching identifying information to Kubernetes Objects.
+- Label provide the foundation for grouping objects.
+- Annotations provide a storage mechanism that resembles labels. Annotations are Key/Value pairs designed to hold non-identifying information that tools and libraries can leverage.
+
+### Service Discovery
+
+- Service Discovery tools help solve the problem of finding which processes are listening at which addresses for which services.
+- Real Service Discovery in Kubernetes starts with a Service Object.
+- Use the command `kubectl expose` to create a service.
+
+#### Domain Name System (DNS)
+
+- The DNS is the traditional system of Service Discovery on the internet.
+- DNS is designed for relatively stable name resolution with wide and efficient caching.
 
 ## Anti-pattern
 
