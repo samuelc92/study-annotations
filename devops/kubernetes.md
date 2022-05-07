@@ -27,6 +27,8 @@
     - [Labels and Annotations](#labels-and-annotations)
     - [Service Discovery](#service-discovery)
       - [Domain Name System (DNS)](#domain-name-system-dns)
+    - [Kube-Proxy and Cluster IPs](#kube-proxy-and-cluster-ips)
+    - [Ingress](#ingress)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -274,6 +276,21 @@ CMD ["/kuard"]
 
 - The DNS is the traditional system of Service Discovery on the internet.
 - DNS is designed for relatively stable name resolution with wide and efficient caching.
+
+### Kube-Proxy and Cluster IPs
+
+- Cluster IPs are stable virtual IPs that load-balance traffic across all of the endpoints in a service. This magic is performed by a component running in every node in the cluster called the `kube-proxy`.
+
+  ![kube-proxy](./img/kube-proxy.png)
+
+- The `kube-proxy` watches for new services in the cluster via the API server. It then programs a set of `iptables` rules in the Kernel of that host to rewrite the destinations of packets so they are directed at one of the endpoints for that service.
+- Service object operates at Layer 4, this means that it only forwards TCP and UDP connections and doesn't look inside of those connections.
+
+### Ingress
+
+- _virtual hosting_ is a mechanism to host many HTTP sites on a single IP address. Typically, the user uses a load balancer or reverse proxy to accept incoming connections on HTTP(80) and HTTP(443) ports. That program then parse the HTTP connection and, based on the _host header_ and the URL path is requested, proxies the HTTP call to some other program. In this way, that load balancer or reverse proxy plays _traffic cop_ decoding and directing incoming connections to the right _upstream_ server.
+- Kubernetes calls its HTTP-based load-balacing System Ingress
+- Ingress is a Kubernetes-native way to implement the _virtual hosting_ pattern.
 
 ## Anti-pattern
 
