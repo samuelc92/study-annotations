@@ -29,6 +29,7 @@
       - [Domain Name System (DNS)](#domain-name-system-dns)
     - [Kube-Proxy and Cluster IPs](#kube-proxy-and-cluster-ips)
     - [Ingress](#ingress)
+    - [ReplicaSet](#replicaset)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -291,6 +292,17 @@ CMD ["/kuard"]
 - _virtual hosting_ is a mechanism to host many HTTP sites on a single IP address. Typically, the user uses a load balancer or reverse proxy to accept incoming connections on HTTP(80) and HTTP(443) ports. That program then parse the HTTP connection and, based on the _host header_ and the URL path is requested, proxies the HTTP call to some other program. In this way, that load balancer or reverse proxy plays _traffic cop_ decoding and directing incoming connections to the right _upstream_ server.
 - Kubernetes calls its HTTP-based load-balacing System Ingress
 - Ingress is a Kubernetes-native way to implement the _virtual hosting_ pattern.
+
+  ![ingress](./img/ingress.png)
+
+  - In the image the Ingress controller is a software system exposed outside the cluster using a service of `type:LoadBalancer. It then proxies requests to _upstream_ servers.
+
+### ReplicaSet
+
+- It acts as cluter-wide Pod manager, ensuring that the right types and numbers of Pods are running at all times.
+- Pods managed by ReplicaSets are automatically rescheduled under certain failure conditions, such as node failures and network partitions.
+- ReplicaSets use label queries to identify the set of Pods they should be managing.
+- The Selector in the ReplicaSet `spec` should be a proper subset of the labels in the Pod template.
 
 ## Anti-pattern
 
