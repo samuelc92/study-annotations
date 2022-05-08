@@ -30,6 +30,7 @@
     - [Kube-Proxy and Cluster IPs](#kube-proxy-and-cluster-ips)
     - [Ingress](#ingress)
     - [ReplicaSet](#replicaset)
+    - [Deployments](#deployments)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -303,6 +304,15 @@ CMD ["/kuard"]
 - Pods managed by ReplicaSets are automatically rescheduled under certain failure conditions, such as node failures and network partitions.
 - ReplicaSets use label queries to identify the set of Pods they should be managing.
 - The Selector in the ReplicaSet `spec` should be a proper subset of the labels in the Pod template.
+
+### Deployments
+
+- The Deployment object exists to manage the release of new versions. It represents deployed application in a way that transcends any particular version. Additionally, Deployments enable you to easily move from one version of your code to the next.
+- Using Deployments, it is simply an reliably rollout new software versions without downtime or errors.
+- Deployments manage ReplicaSets. As with all relationships in Kubernetes, this relationship is defined by labels and a label Selector.
+- Recreate Strategy updates the ReplicaSet it manages to use the new image and terminates all of the Pods associated with the Deployment. The ReplicaSet notices that it no longer has any replicas and recreates all Pods using the new image. It should only be usd for test Deployment where service downtime is acceptable.
+- RollingUpdate Strategy updates a few Pods at a time, moving incrementally until all of the Pods are running the new version of the software.
+- Setting `maxSurge: 100%` is equivalent to _blue/green_ deployment.
 
 ## Anti-pattern
 
