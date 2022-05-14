@@ -31,6 +31,7 @@
     - [Ingress](#ingress)
     - [ReplicaSet](#replicaset)
     - [Deployments](#deployments)
+    - [DaemonSet](#daemonset)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -313,6 +314,55 @@ CMD ["/kuard"]
 - Recreate Strategy updates the ReplicaSet it manages to use the new image and terminates all of the Pods associated with the Deployment. The ReplicaSet notices that it no longer has any replicas and recreates all Pods using the new image. It should only be usd for test Deployment where service downtime is acceptable.
 - RollingUpdate Strategy updates a few Pods at a time, moving incrementally until all of the Pods are running the new version of the software.
 - Setting `maxSurge: 100%` is equivalent to _blue/green_ deployment.
+
+### DaemonSet
+
+- A DaemonSet ensures that a copy of a Pod is running accross a set of nodes in a Kubernetes cluster. It is used to deploy system daemons such as log collectors and monitoring agents, which typically must run on every node.
+
+- ReplicaSets should be used when your application is completely decoupled from the node and you can run multiple copies on a given node without special consideration. DaemonSets should be used when a single copy of you application must run on all or a subset of the nodes in the cluster.
+
+- Example of a DaemonSets that creates a `fluentd` logging agent on every node in the target cluster.
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSets
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      containers:
+        - name: fluentd
+          image: fluent/fluentd:v0.14.10
+          resources:
+            limits:
+              memory: 200M
+            requests:
+              cpu: 100M
+              memory: 200M
+          volumeMounts:
+            - name: varLog
+              mountPath: /var/log
+            - name: varlibdockercontainer
+              mountPath: /var/lib/docker/container
+              readOnly: true
+    terminationGracePeriodSeconds: 30
+    volumes:
+      - name: varLog
+        hostPath:
+          path: /var/log
+      - name: varlibdockercontainer
+        hostPath:
+          path: /var/lib/docker/container
+```
 
 ## Anti-pattern
 
