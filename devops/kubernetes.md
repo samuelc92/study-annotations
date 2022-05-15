@@ -32,6 +32,9 @@
     - [ReplicaSet](#replicaset)
     - [Deployments](#deployments)
     - [DaemonSet](#daemonset)
+    - [Job](#job)
+      - [Cron Jobs](#cron-jobs)
+    - [ConfigMaps and Secrets](#configmaps-and-secrets)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -363,6 +366,30 @@ spec:
         hostPath:
           path: /var/lib/docker/container
 ```
+
+### Job
+
+- The Job Object is responsible for creating and managing Pods in a template in the job specification.
+- Te Job Object coordinates running a number of Pods in parallel. Job has the following patterns:
+
+| Type                       | Use Case                                               | Behaviour                                                                          | Completions | Parallelism |
+| -------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------- | ----------- | ----------- |
+| One Shot                   | Database Migration                                     | A single Pod running once until successful termination                             | 1           | 1           |
+| Parallel fixed completions | Multiple Pods processing a set of work in parallel     | One or more Pods running one or more times until reaching a fixed completion count | 1+          | 1+          |
+| Work queue: parallel jobs  | Multiple Pods processing from a centralized work queue | One or more Pods running once until sucessful termination                          | 1           | 2+          |
+
+#### Cron Jobs
+
+- It is responsible for creating a new Job Object at a particular interval.
+
+### ConfigMaps and Secrets
+
+- ConfigMaps are used to provide configuration information for workloads.
+- Secrets are similar to ConfigMaps but focus on making sensitive information available to the workload. They can be used for things like credentials or TLS certificates.
+- There are three main ways to use a ConfigMap:
+  - Filesystem: you can mount a ConfigMap into a Pod. A file is created for each entry based on the key name. The contents of that file are set to the value.
+  - Environment variables: a ConfigMap can be used to dynamically set the value of an environment variable.
+  - Command-line argument: Kubernetes supports dynamically creating the command line for a container based on ConfigMap values.
 
 ## Anti-pattern
 
