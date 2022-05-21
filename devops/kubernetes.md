@@ -35,6 +35,10 @@
     - [Job](#job)
       - [Cron Jobs](#cron-jobs)
     - [ConfigMaps and Secrets](#configmaps-and-secrets)
+    - [Role-Based Access Control for Kubernetes (RBAC)](#role-based-access-control-for-kubernetes-rbac)
+      - [Identity in Kubernetes](#identity-in-kubernetes)
+      - [Role and Role Bindings](#role-and-role-bindings)
+    - [Service Mesh](#service-mesh)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -390,6 +394,28 @@ spec:
   - Filesystem: you can mount a ConfigMap into a Pod. A file is created for each entry based on the key name. The contents of that file are set to the value.
   - Environment variables: a ConfigMap can be used to dynamically set the value of an environment variable.
   - Command-line argument: Kubernetes supports dynamically creating the command line for a container based on ConfigMap values.
+
+### Role-Based Access Control for Kubernetes (RBAC)
+
+- RBAC provides a mechanism for restricting both access to and actions on Kubernetes APIs to ensure that only appropriate users have access.
+- Every request to Kubernetes is first authenticated. Authentication provides the identity of the caller issuing the request. Kubernetes does not have a built-in identity store, foccusing instead on integrating other identity sources within itself.
+- Once users have been authenticated, the authorization phase determines whether they are authorized to perform the request.
+
+#### Identity in Kubernetes
+
+- Every request to Kubernetes is associated with some identity. Even a request with no identity is associated with the `systemunauthenticated` group.
+- Service accounts are created and managed by Kubernetes itself and are generally associated with components running inside the cluster.
+- User accounts are all other accounts associated with actual users of the cluster, and often include automation like continuous delivery services that run outside the cluster.
+
+#### Role and Role Bindings
+
+- A role is a set of abstract capabilities. For example, the `appdev` role might represent the ability to create Pods and Services.
+- A *role binding* is an assignment of a role to one or more identities.
+
+### Service Mesh
+
+- There are three general capabilities provided by most Service Mesh implementations: Network encryption and authorization, traffic shaping and observability.
+- Installing a Service Mesh on you Kubernetes cluster automatically provides encyption to network traffic between every Pod in the cluster. The Service Mesh adds a sidecar container to every Pod that transparently intercepts all network communication. In addition to securig the communication, mutual TLS adds identity to the encryption using client certificates so the application securely knows the idenity of every network client.
 
 ## Anti-pattern
 
