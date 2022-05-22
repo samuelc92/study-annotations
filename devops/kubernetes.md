@@ -416,6 +416,9 @@ spec:
 
 - There are three general capabilities provided by most Service Mesh implementations: Network encryption and authorization, traffic shaping and observability.
 - Installing a Service Mesh on you Kubernetes cluster automatically provides encyption to network traffic between every Pod in the cluster. The Service Mesh adds a sidecar container to every Pod that transparently intercepts all network communication. In addition to securig the communication, mutual TLS adds identity to the encryption using client certificates so the application securely knows the idenity of every network client.
+- *Traffic Shaping*: routing of requests to different service implementations based on the characteristics of the requests. Example: Route all traffic from your companies internal users went to service "y" while all traffic from the rest of the world still went to service "x".
+- *Introspection*: The Service Mesh knows all communication between Pods, so it tracks the request giving to the developer the option to see a single aggregate request that defines the user experience of their complete journey.
+- The Service Mesh is deeply integrated into the core communication of your service thus if the Service Mesh fails, you entire application stops working.
 
 ## Anti-pattern
 
