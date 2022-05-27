@@ -39,6 +39,7 @@
       - [Identity in Kubernetes](#identity-in-kubernetes)
       - [Role and Role Bindings](#role-and-role-bindings)
     - [Service Mesh](#service-mesh)
+    - [Integrating Storage Solutions and Kubernetes](#integrating-storage-solutions-and-kubernetes)
   - [Anti-pattern](#anti-pattern)
     - [Lack of Health Checks](#lack-of-health-checks)
     - [Not Using Blue/Green, or Canary Deployments Models](#not-using-bluegreen-or-canary-deployments-models)
@@ -419,6 +420,27 @@ spec:
 - *Traffic Shaping*: routing of requests to different service implementations based on the characteristics of the requests. Example: Route all traffic from your companies internal users went to service "y" while all traffic from the rest of the world still went to service "x".
 - *Introspection*: The Service Mesh knows all communication between Pods, so it tracks the request giving to the developer the option to see a single aggregate request that defines the user experience of their complete journey.
 - The Service Mesh is deeply integrated into the core communication of your service thus if the Service Mesh fails, you entire application stops working.
+
+### Integrating Storage Solutions and Kubernetes
+
+- Importing External Services
+  - Import external services (either cloud services or running on VMs) into Kubernetes gives the advantage of all of the built-in naming and Service Discovery primitives provided by Kubernetes.
+  - Represent both databases as Kubernetes services enables you to maintain identical conofigurations in both testing and production.
+  - To import an external database service into Kubernetes, we start by creating a service without a Pod selector that references the DNS name of the database server.
+ ```yaml
+ kind: Service
+ apiVersion: v1
+ metadata:
+  name: external-database
+ spec:
+  type: ExternalName
+  externalName: database.company.com
+ ```
+- Kubernetes-Native Storage with StatefulSets
+  - StatefulSets are replicated groups of Pods, similar to ReplicaSet. But unlike a ReplicaSet, they have certain unique properties:
+    - Each replica gets a persistent hostname with a unique index (e.g: `database-0`, `database-1`, etc).
+    - Each replica is created in order from lowest to highest index, and creation will block until the Pod at the previous index is healthy and available. This also applies to scaling up.
+    - When a StatefulSet is deleted, each of the managed replica Pod is also deleted in order form highest to lowest. This also applies to scaling down the number of replicas.
 
 ## Anti-pattern
 
