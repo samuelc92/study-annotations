@@ -442,6 +442,10 @@ spec:
     - Each replica is created in order from lowest to highest index, and creation will block until the Pod at the previous index is healthy and available. This also applies to scaling up.
     - When a StatefulSet is deleted, each of the managed replica Pod is also deleted in order form highest to lowest. This also applies to scaling down the number of replicas.
 
+### Securing Pods
+
+- Defense in depth is a concept where you utilize multiple layers of security controls across your computing systems which include Kubernetes.
+
 ## Anti-pattern
 
 ### Lack of Health Checks
